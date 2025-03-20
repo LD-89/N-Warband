@@ -7,12 +7,15 @@
 ## Notes-zhTW: World of Warcraft的戰隊管理插件
 ## Author: Dariusz Lenart
 ## Version: 0.1
+## IconTexture: Interface\AddOns\N-Warband\icon
+## AddonCompartmentFunc: NWarband_ToggleMainFrame
 ## X-Category: Interface Enhancements
 ## X-Website: https://github.com/LD-89/N-Warband
 ## SavedVariables: NWarbandDB
 ## SavedVariablesPerCharacter: NWarbandCharDB
 ## DefaultState: enabled
 ## X-License: MIT
+
 
 # Libraries
 Libs\LibStub\LibStub.lua
