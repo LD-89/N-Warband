@@ -8,8 +8,16 @@ local defaults = {
         minimap = {
             hide = false,
         },
+    },
+    global = {
+        characters = {}
     }
 }
+
+function addon:OnInitialize()
+    -- Initialize DB through Ace3
+    self.db = LibStub("AceDB-3.0"):New("NWarbandDB", defaults)
+end
 
 -- Create the main frame
 local mainFrame = CreateFrame("Frame", "NWarbandMainFrame", UIParent, "BasicFrameTemplateWithInset")
@@ -58,7 +66,49 @@ function addon:ToggleMainFrame()
     end
 end
 
+-- Character data collection
+local function UpdateCharacterData()
+    local charInfo = {
+        name = UnitName("player"),
+        server = GetRealmName(),
+        level = UnitLevel("player"),
+        gold = GetMoney(),
+        race = UnitRace("player"),
+        class = UnitClass("player"),
+        faction = UnitFactionGroup("player"),
+        logoutLocation = nil  -- Will be updated on logout
+    }
+
+    -- Get existing entry or create new
+    local charKey = charInfo.name .. "-" .. charInfo.server
+    addon.db.global.characters[charKey] = charInfo
+end
+
+-- Logout event handler
+local function OnLogout()
+    local _, instanceType = IsInInstance()
+    local zoneText = GetRealZoneText()
+    addon.db.global.characters[UnitName("player") .. "-" .. GetRealmName()].logoutLocation = zoneText
+end
+
+-- Example dropdown menu
+local function CreateCharacterDropdown()
+    local dropdown = UIDropDownMenu:Create("CharacterSelector", UIParent)
+    UIDropDownMenu:SetInitialValue(dropdown, "Select Character")
+
+    for key, char in pairs(addon.db.global.characters) do
+        UIDropDownMenu:AddButton(dropdown, {
+            text = char.name .. " (@ " .. char.server .. ")",
+            value = char
+        })
+    end
+end
+
+
+
 -- Register events when the addon loads
 addon:RegisterEvent("PLAYER_LOGIN", function()
     print("N-Warband successfully loaded!")
 end)
+addon:RegisterEvent("PLAYER_LOGIN", UpdateCharacterData)
+addon:RegisterEvent("PLAYER_LOGOUT", OnLogout)
